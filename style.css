@@ -1,0 +1,136 @@
+/* Machine Forgetting - minimal styles */
+main {
+  margin: 0;
+  padding: 0;
+}
+
+#piece-ui {
+  position: fixed;
+  top: 18px;
+  left: 56px;
+  z-index: 1200;
+  width: min(320px, calc(100vw - 80px));
+  margin: 0;
+  padding: 0;
+  color: #222;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+#controls-toggle,
+#controls-panel button,
+#controls-close {
+  pointer-events: auto;
+  padding: 5px 12px;
+  border: 1px solid #222;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #111;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#controls-toggle[aria-expanded="true"] {
+  background: #111;
+  color: #fff;
+}
+
+#controls-panel {
+  pointer-events: auto;
+  margin-top: 10px;
+  padding: 14px 16px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  max-height: calc(100vh - 78px);
+  overflow: auto;
+}
+
+#controls-panel[hidden] {
+  display: none;
+}
+
+.controls-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.controls-title {
+  margin: 0;
+  font-size: 15px;
+}
+
+#controls-panel p {
+  margin: 0 0 8px;
+}
+
+#controls-panel dl {
+  margin: 10px 0 12px;
+}
+
+#controls-panel dl div {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 8px;
+  margin: 0 0 7px;
+}
+
+#controls-panel dt {
+  margin: 0;
+  font-weight: normal;
+}
+
+#controls-panel dd {
+  margin: 0;
+}
+
+.controls-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#piece-ui button.is-recording {
+  border-color: #b00020;
+  color: #b00020;
+}
+
+#piece-ui.dark {
+  color: #f2f2f2;
+}
+
+#piece-ui.dark #controls-toggle,
+#piece-ui.dark #controls-panel button,
+#piece-ui.dark #controls-close {
+  background: #141414;
+  color: #f2f2f2;
+  border-color: #f2f2f2;
+}
+
+#piece-ui.dark #controls-toggle[aria-expanded="true"] {
+  background: #f2f2f2;
+  color: #111;
+}
+
+#piece-ui.dark #controls-panel {
+  background: rgba(16, 16, 16, 0.96);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+#piece-ui.dark button.is-recording {
+  border-color: #ff6b81;
+  color: #ff6b81;
+}
+
+#record-note {
+  min-height: 1em;
+  margin-top: 8px;
+}
