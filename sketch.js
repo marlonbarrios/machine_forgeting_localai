@@ -6,6 +6,7 @@ import {
   getHandState,
   getHandVideo,
   pinchToCanvas,
+  cameraPreviewCrop,
   setCameraThumbnailVisible,
   pumpCameraFrame,
 } from './handTracker.js';
@@ -845,6 +846,8 @@ const sketch = p => {
       canvas.style.position = 'fixed';
       canvas.style.left = '0';
       canvas.style.top = '0';
+      canvas.style.width = '100vw';
+      canvas.style.height = '100vh';
       canvas.style.zIndex = '1';
     }
     // Initialize hand tracker (camera); may prompt for permission
@@ -855,6 +858,17 @@ const sketch = p => {
         setCameraThumbnailVisible(true);
       }
     }).catch(() => {});
+  };
+
+  p.windowResized = function() {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+    const canvas = p.canvas;
+    if (!canvas) return;
+    canvas.style.position = 'fixed';
+    canvas.style.left = '0';
+    canvas.style.top = '0';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
   };
 
   p.draw = function() {
@@ -871,7 +885,12 @@ const sketch = p => {
       ctx.globalCompositeOperation = 'source-over';
       ctx.translate(p.width, 0);
       ctx.scale(-1, 1);
-      ctx.drawImage(handTrackerVideo, 0, 0, handTrackerVideo.videoWidth, handTrackerVideo.videoHeight, 0, 0, p.width, p.height);
+      const crop = cameraPreviewCrop(handTrackerVideo);
+      if (crop) {
+        ctx.drawImage(handTrackerVideo, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, p.width, p.height);
+      } else {
+        ctx.drawImage(handTrackerVideo, 0, 0, handTrackerVideo.videoWidth, handTrackerVideo.videoHeight, 0, 0, p.width, p.height);
+      }
       ctx.restore();
     } else if (showVideoAsBackground && handTrackerVideo) {
       // Camera on but not ready yet
@@ -910,7 +929,7 @@ const sketch = p => {
     const isPinching = hand.isPinching && !showHomePage;
     const canTrace = textReady && letters.length > 0 && audioReady && speechElement;
     const isDrawing = isPinching && canTrace;
-    const pinchPoint = pinchToCanvas(hand.pinchX, hand.pinchY, p.width, p.height, true);
+    const pinchPoint = pinchToCanvas(hand.pinchX, hand.pinchY, p.width, p.height, true, handTrackerVideo);
     const drawX = pinchPoint.x;
     const drawY = pinchPoint.y;
 
@@ -1078,7 +1097,7 @@ const sketch = p => {
     }
     
     if (hand.ready && hand.handsSeen) {
-      const tip = pinchToCanvas(hand.pointerX, hand.pointerY, p.width, p.height, true);
+      const tip = pinchToCanvas(hand.pointerX, hand.pointerY, p.width, p.height, true, handTrackerVideo);
       p.noStroke();
       p.fill(textColor, hand.isPinching ? 230 : 90);
       p.circle(tip.x, tip.y, hand.isPinching ? 22 : 12);

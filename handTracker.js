@@ -284,6 +284,10 @@ export function updateHandTracker(video, canvasWidth, canvasHeight, mirror = tru
  * Get current hand state for drawing.
  * Coordinates are normalized 0–1 (same space as video). Convert to canvas in sketch.
  */
+export function getHandVideo() {
+  return videoElement;
+}
+
 export function getHandState() {
   return {
     isPinching: state.isPinching,
@@ -298,14 +302,48 @@ export function getHandState() {
   };
 }
 
+// The on-screen camera is a 4:3 picture (object-fit: cover). Landmarks are
+// measured on the full camera frame, which is wider, so the sides of that
+// picture never reached the sides of the window.
+const CAMERA_FRAME_ASPECT = 4 / 3;
+
+function visibleCameraRect(videoWidth, videoHeight) {
+  const videoAspect = videoWidth / videoHeight;
+  if (videoAspect > CAMERA_FRAME_ASPECT) {
+    const w = CAMERA_FRAME_ASPECT / videoAspect;
+    return { x: (1 - w) / 2, y: 0, w, h: 1 };
+  }
+  const h = videoAspect / CAMERA_FRAME_ASPECT;
+  return { x: 0, y: (1 - h) / 2, w: 1, h };
+}
+
 /**
- * Map normalized pinch (0–1) to canvas coordinates.
+ * Map a point in the camera picture onto the whole window.
+ * The picture shown in the camera preview fills the window edge to edge.
  */
-export function pinchToCanvas(pinchX, pinchY, width, height, mirror = true) {
-  const x = mirror ? 1 - pinchX : pinchX;
+export function pinchToCanvas(pinchX, pinchY, width, height, mirror = true, video = null) {
+  let x = mirror ? 1 - pinchX : pinchX;
+  let y = pinchY;
+  if (video && video.videoWidth > 0 && video.videoHeight > 0) {
+    const frame = visibleCameraRect(video.videoWidth, video.videoHeight);
+    x = (x - frame.x) / frame.w;
+    y = (y - frame.y) / frame.h;
+  }
   return {
     x: x * width,
-    y: pinchY * height
+    y: y * height
+  };
+}
+
+/** Pixel crop of the camera frame that the preview actually shows. */
+export function cameraPreviewCrop(video) {
+  if (!video || video.videoWidth < 1 || video.videoHeight < 1) return null;
+  const frame = visibleCameraRect(video.videoWidth, video.videoHeight);
+  return {
+    sx: frame.x * video.videoWidth,
+    sy: frame.y * video.videoHeight,
+    sw: frame.w * video.videoWidth,
+    sh: frame.h * video.videoHeight
   };
 }
 
